@@ -2,59 +2,52 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Color Chart</title>
-
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
 
-  <header class="top">
-    <h1>Color Chart</h1>
-    <p class="sub">Catálogo interactivo — 58 sonidos</p>
+<body>
+  <main class="wrap">
+    <h1 class="title">Color Chart</h1>
+    <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
 
     <div class="controls">
-      <label for="soundMenu">Menú de sonidos</label>
-      <select id="soundMenu"></select>
-      <span id="status" class="status">Cargando…</span>
+      <label class="label" for="soundSelect">Menú de sonidos</label>
+      <select id="soundSelect" class="select">
+        <option value="">Cargando...</option>
+      </select>
+      <span id="statusText" class="status">—</span>
     </div>
-  </header>
 
-  <main class="wrap">
-    <section class="headRow">
-      <div class="headCell">Icono</div>
-      <div class="headCell">Descripción</div>
-      <div class="headCell">Sonido</div>
-    </section>
-
-    <section class="sheet">
-      <div class="iconCol">
-        <div id="avatar" class="avatar" aria-label="Icono del sonido"></div>
-      </div>
-
-      <div class="descCol">
-        <div class="card">
-          <div class="meta">
-            <span id="idText" class="pill">CC--</span>
-            <span id="typeText" class="pill pillSoft">type</span>
-          </div>
-
-          <div id="ipaBig" class="ipa">/…/</div>
-          <div id="exampleBig" class="example">example</div>
-          <p id="descText" class="desc">Aquí va la descripción del sonido…</p>
+    <section class="panel">
+      <div class="col">
+        <div class="colTitle">Icono</div>
+        <div class="iconWrap">
+          <img id="iconImg" alt="Icono" class="iconImg" />
         </div>
       </div>
 
-      <div class="soundCol">
-        <button id="playBtn" class="play" type="button" aria-label="Reproducir o detener">
-          <span class="icon">🔊</span>
+      <div class="col">
+        <div class="colTitle">Descripción</div>
+        <div class="card">
+          <div class="pillRow">
+            <span id="idPill" class="pill">—</span>
+          </div>
+          <p id="descText" class="desc">Selecciona un sonido.</p>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="colTitle">Sonido</div>
+        <button id="playBtn" class="playBtn" type="button" aria-label="Reproducir">
+          ▶
         </button>
         <p class="hint">Click para reproducir / click otra vez para detener</p>
       </div>
     </section>
-
   </main>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js" defer></script>
 </body>
 </html>
