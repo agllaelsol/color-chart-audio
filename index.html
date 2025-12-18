@@ -4,70 +4,58 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Color Chart</title>
-
-  <!-- IMPORTANTÍSIMO: ruta relativa -->
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
 </head>
-
 <body>
-  <div class="wrap">
+  <div class="page">
     <header class="top">
       <h1>Color Chart</h1>
-      <p class="sub">Catálogo interactivo — 58 sonidos</p>
+      <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
 
       <div class="controls">
-        <label for="soundSelect" class="label">Menú de sonidos</label>
-        <select id="soundSelect" class="select">
-          <option value="">Cargando...</option>
+        <label class="label" for="soundSelect">Menú de sonidos</label>
+        <select id="soundSelect" class="select" disabled>
+          <option>Cargando…</option>
         </select>
-        <span id="statusText" class="status"></span>
+        <span id="status" class="status">Cargando…</span>
       </div>
     </header>
 
-    <main class="grid3">
-      <!-- Col 1 -->
-      <section class="col">
-        <div class="pillHeader">Icono</div>
-        <div class="iconWrap">
-          <img id="iconImg" class="iconImg" alt="Icono" />
+    <section class="grid">
+      <div class="headpill">Icono</div>
+      <div class="headpill">Descripción</div>
+      <div class="headpill">Sonido</div>
+
+      <div class="card iconCard">
+        <div class="iconCircle">
+          <img id="iconImg" alt="Icono" />
         </div>
-      </section>
+      </div>
 
-      <!-- Col 2 -->
-      <section class="col">
-        <div class="pillHeader">Descripción</div>
-
-        <div class="card">
-          <div class="meta">
-            <!-- Esto es lo que preguntabas: son “píldoras” informativas -->
-            <span id="idText" class="pill">—</span>
-            <!-- Si NO quieres “type”, lo dejamos oculto desde JS/CSS -->
-            <span id="typeText" class="pill pillSoft" style="display:none;"></span>
-          </div>
-
-          <div id="descText" class="desc">
-            Selecciona un sonido.
-          </div>
+      <div class="card descCard">
+        <div class="meta">
+          <span id="idPill" class="pill">CC--</span>
         </div>
-      </section>
+        <p id="descText" class="descText">Selecciona un sonido.</p>
+      </div>
 
-      <!-- Col 3 -->
-      <section class="col">
-        <div class="pillHeader">Sonido</div>
-
-        <button id="playBtn" class="soundBtn" type="button" aria-label="Reproducir">
-          🔊
+      <div class="card soundCard">
+        <button id="playBtn" class="soundBtn" type="button" aria-label="Reproducir / detener">
+          <span class="soundIcon" aria-hidden="true">
+            <!-- SVG inline: no necesitas archivo de bocina -->
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+              <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+              <path d="M18 6a8 8 0 0 1 0 12"></path>
+            </svg>
+          </span>
         </button>
 
-        <div class="hint">Click para reproducir / click otra vez para detener</div>
-
-        <!-- Audio real (controlado por JS) -->
-        <audio id="audioEl" preload="auto"></audio>
-      </section>
-    </main>
+        <p class="hint">Click para reproducir / click otra vez para detener</p>
+      </div>
+    </section>
   </div>
 
-  <!-- IMPORTANTÍSIMO: ruta relativa + defer -->
-  <script src="js/app.js" defer></script>
+  <script src="./js/app.js" defer></script>
 </body>
 </html>
