@@ -6,51 +6,57 @@
   <title>Color Chart</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-
 <body>
-  <main class="page">
-    <header class="header">
+  <main class="wrap">
+    <header class="top">
       <h1>Color Chart</h1>
       <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
 
-      <div class="controls">
+      <div class="toolbar">
         <label class="label" for="soundSelect">Menú de sonidos</label>
         <select id="soundSelect" class="select">
-          <option value="">Cargando...</option>
+          <option value="" selected disabled>Cargando...</option>
         </select>
-        <span id="status" class="status">—</span>
+        <span id="statusText" class="status">—</span>
       </div>
     </header>
 
-    <section class="grid">
+    <section class="grid3">
+      <!-- Columna 1: Icono -->
       <div class="col">
-        <div class="pillHeader">Icono</div>
-        <div class="iconWrap">
-          <img id="iconImg" alt="Icono" />
+        <div class="pillTitle">Icono</div>
+        <div class="iconCard">
+          <img id="iconImg" alt="Ícono" />
         </div>
       </div>
 
-      <div class="col descCol">
-        <div class="pillHeader">Descripción</div>
-        <div class="card">
+      <!-- Columna 2: Descripción -->
+      <div class="col">
+        <div class="pillTitle">Descripción</div>
+        <div class="descCard">
           <div class="meta">
             <span id="idText" class="pill">—</span>
           </div>
-          <p id="descText" class="desc">Selecciona un sonido.</p>
+          <p id="descText" class="descText">Selecciona un sonido.</p>
         </div>
       </div>
 
+      <!-- Columna 3: Sonido -->
       <div class="col">
-        <div class="pillHeader">Sonido</div>
-        <button id="playBtn" class="playBtn" type="button" aria-label="Reproducir / detener">
-          <img src="img/speaker.png" alt="" />
+        <div class="pillTitle">Sonido</div>
+
+        <button id="playBtn" class="soundBtn" type="button" aria-label="Reproducir / detener">
+          <img id="speakerIcon" src="img/speaker.png" alt="" />
         </button>
+
         <p class="hint">Click para reproducir / click otra vez para detener</p>
+
+        <!-- Audio real -->
         <audio id="audioEl" preload="none"></audio>
       </div>
     </section>
   </main>
 
-  <script src="js/app.js" defer></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
