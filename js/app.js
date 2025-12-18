@@ -1,189 +1,136 @@
-/* js/app.js
-   - Carga data/colorchart.json (GitHub Pages friendly)
-   - Llena el menú con TODOS los sonidos
-   - Reproduce/pausa audio
-   - Muestra icono (img/CCxx.png)
-   - Solo usa: id, description, audio, icon (ignora ipa/example/type)
-*/
-
 (() => {
-  // --- Helpers
-  const $ = (sel) => document.querySelector(sel);
+  const JSON_URL = "./data/colorchart.json";
 
-  // Trata de “encontrar” elementos aunque hayas cambiado el HTML
-  const ui = {
-    select:
-      $("#soundSelect") ||
-      $("#menuSonidos") ||
-      $("select"),
-    iconImg:
-      $("#iconImg") ||
-      $("#icon") ||
-      $("img"),
-    desc:
-      $("#description") ||
-      $("#descText") ||
-      $("#desc") ||
-      $(".description") ||
-      $("p"),
-    status:
-      $("#statusText") ||
-      $("#status") ||
-      null,
-    playBtn:
-      $("#soundBtn") ||
-      $("#playBtn") ||
-      $("#audioBtn") ||
-      null,
-  };
+  const soundSelect = document.getElementById("soundSelect");
+  const statusEl = document.getElementById("status");
+  const iconImg = document.getElementById("iconImg");
+  const idPill = document.getElementById("idPill");
+  const descText = document.getElementById("descText");
+  const playBtn = document.getElementById("playBtn");
 
-  // Si no existe botón, usamos el audio nativo y lo controlamos con click en cualquier “zona” que tengas
   const audio = new Audio();
   audio.preload = "auto";
 
-  const setStatus = (txt) => {
-    if (ui.status) ui.status.textContent = txt;
-  };
-
-  // IMPORTANTE: ruta correcta en GitHub Pages (usa URL relativa al documento actual)
-  const JSON_URL = new URL("./data/colorchart.json", window.location.href);
-
-  let sounds = [];
+  let items = [];
   let current = null;
 
-  const normalizeItem = (item) => {
-    // Acepta campos extra pero solo usa los que te importan
-    const id = String(item.id || "").trim();
-    const description = String(item.description || "").trim();
+  function setStatus(msg) {
+    statusEl.textContent = msg;
+  }
 
-    // Si audio/icon vienen vacíos, los armamos por convención
-    const audioPath = (item.audio && String(item.audio).trim()) || `audio/${id}.mp3`;
-    const iconPath = (item.icon && String(item.icon).trim()) || `img/${id}.png`;
+  function clearUI() {
+    idPill.textContent = "CC--";
+    descText.textContent = "Selecciona un sonido.";
+    iconImg.removeAttribute("src");
+    iconImg.alt = "Icono";
+    playBtn.classList.remove("isPlaying");
+  }
 
-    return { id, description, audio: audioPath, icon: iconPath };
-  };
-
-  const validItem = (x) => x && x.id && x.audio && x.icon;
-
-  const fillSelect = () => {
-    if (!ui.select) return;
-
-    ui.select.innerHTML = "";
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "Selecciona un sonido…";
-    ui.select.appendChild(opt0);
-
-    sounds.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = s.id; // (solo ID, como quieres)
-      ui.select.appendChild(opt);
-    });
-  };
-
-  const render = (s) => {
-    current = s;
-
-    // descripción
-    if (ui.desc) ui.desc.textContent = s?.description || "Aquí va la descripción del sonido…";
-
-    // icono
-    if (ui.iconImg) {
-      ui.iconImg.src = new URL(`./${s.icon}`, window.location.href).toString();
-      ui.iconImg.alt = s.id;
-    }
-
-    // audio
-    audio.src = new URL(`./${s.audio}`, window.location.href).toString();
-    audio.currentTime = 0;
-
-    setStatus("Detenido.");
-  };
-
-  const togglePlay = async () => {
-    if (!current) return;
-
+  function stopAudio() {
     try {
-      if (audio.paused) {
-        await audio.play();
-        setStatus(`Reproduciendo ${current.id}…`);
-      } else {
-        audio.pause();
-        setStatus("Detenido.");
-      }
-    } catch (e) {
-      // Si el navegador bloquea autoplay, aquí te enteras
-      console.error("Audio play error:", e);
-      setStatus("No se pudo reproducir (bloqueo del navegador).");
-      alert("Tu navegador bloqueó la reproducción. Haz click directo en el botón de sonido y vuelve a intentar.");
+      audio.pause();
+      audio.currentTime = 0;
+    } catch {}
+    playBtn.classList.remove("isPlaying");
+  }
+
+  function setCurrentById(id) {
+    current = items.find(x => x.id === id) || null;
+    stopAudio();
+
+    if (!current) {
+      clearUI();
+      return;
     }
-  };
 
-  // Eventos de audio para estado
-  audio.addEventListener("ended", () => setStatus("Detenido."));
-  audio.addEventListener("pause", () => setStatus("Detenido."));
+    idPill.textContent = current.id || "CC--";
+    descText.textContent = current.description || "";
+    iconImg.src = current.icon || "";
+    iconImg.alt = current.id ? `Icono ${current.id}` : "Icono";
 
-  const bindUI = () => {
-    if (ui.select) {
-      ui.select.addEventListener("change", () => {
-        const id = ui.select.value;
-        if (!id) return;
+    audio.src = current.audio || "";
+    audio.load();
+    setStatus("Listo.");
+  }
 
-        const s = sounds.find((x) => x.id === id);
-        if (s) render(s);
+  async function loadJSON() {
+    try {
+      setStatus("Cargando JSON…");
+      const res = await fetch(JSON_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("JSON no es un array.");
+
+      // Validación mínima
+      items = data.filter(x => x && x.id && x.audio && x.icon);
+
+      if (!items.length) throw new Error("JSON vacío o sin campos requeridos (id, audio, icon).");
+
+      // Llenar select
+      soundSelect.innerHTML = "";
+      items.forEach((it) => {
+        const opt = document.createElement("option");
+        opt.value = it.id;
+        opt.textContent = it.id;
+        soundSelect.appendChild(opt);
       });
-    }
 
-    // Si tienes botón de “sonido”, úsalo; si no, clickea el contenedor que exista
-    if (ui.playBtn) {
-      ui.playBtn.addEventListener("click", togglePlay);
-    } else {
-      // fallback: click en cualquier elemento con texto “Click para reproducir”
-      const fallbackBtn =
-        document.querySelector('[data-play]') ||
-        document.querySelector(".soundCard") ||
-        document.querySelector(".sound") ||
-        null;
+      soundSelect.disabled = false;
+      setStatus("Terminado.");
 
-      if (fallbackBtn) fallbackBtn.addEventListener("click", togglePlay);
-    }
-  };
+      // Seleccionar primero
+      setCurrentById(items[0].id);
+      soundSelect.value = items[0].id;
 
-  const load = async () => {
-    try {
-      setStatus("Cargando…");
-
-      const res = await fetch(JSON_URL.toString(), { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status} al cargar JSON`);
-
-      const raw = await res.json();
-
-      if (!Array.isArray(raw)) throw new Error("El JSON debe ser un ARRAY [ ... ]");
-
-      sounds = raw.map(normalizeItem).filter(validItem);
-
-      if (!sounds.length) throw new Error("El JSON cargó, pero no hay items válidos (id/audio/icon).");
-
-      fillSelect();
-      bindUI();
-
-      // Selecciona el primero por defecto (para demo)
-      render(sounds[0]);
-      if (ui.select) ui.select.value = sounds[0].id;
-
-      setStatus("Listo.");
     } catch (err) {
       console.error(err);
+      soundSelect.innerHTML = `<option>Error cargando JSON</option>`;
+      soundSelect.disabled = true;
       setStatus("Error cargando JSON.");
-      alert(`Error cargando JSON:\n${err.message}\n\nTip: abre esta URL y verifica que exista:\n${JSON_URL}`);
+      clearUI();
     }
-  };
-
-  // Arranca cuando el DOM está listo
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", load);
-  } else {
-    load();
   }
+
+  // Cambiar sonido (NO reproducir automáticamente)
+  soundSelect.addEventListener("change", () => {
+    setCurrentById(soundSelect.value);
+  });
+
+  // Botón play/stop (esto SÍ es gesto del usuario → no lo bloquea el navegador)
+  playBtn.addEventListener("click", async () => {
+    if (!current) return;
+
+    if (!audio.src) {
+      setStatus("Audio no encontrado.");
+      return;
+    }
+
+    if (!audio.paused) {
+      stopAudio();
+      setStatus("Detenido.");
+      return;
+    }
+
+    try {
+      await audio.play();
+      playBtn.classList.add("isPlaying");
+      setStatus(`Reproduciendo ${current.id}…`);
+    } catch (e) {
+      console.error(e);
+      setStatus("El navegador bloqueó la reproducción. Vuelve a dar click.");
+    }
+  });
+
+  audio.addEventListener("ended", () => {
+    playBtn.classList.remove("isPlaying");
+    setStatus("Terminado.");
+  });
+
+  // Si falla una imagen, al menos no rompe
+  iconImg.addEventListener("error", () => {
+    iconImg.removeAttribute("src");
+  });
+
+  clearUI();
+  loadJSON();
 })();
