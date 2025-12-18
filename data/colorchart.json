@@ -6,7 +6,7 @@
   { "id": "CC05", "description": "", "audio": "audio/CC05.mp3", "icon": "img/CC05.png" },
   { "id": "CC06", "description": "", "audio": "audio/CC06.mp3", "icon": "img/CC06.png" },
   { "id": "CC07", "description": "", "audio": "audio/CC07.mp3", "icon": "img/CC07.png" },
-  { "id": "CC08", "description": "Posterior, abierto, largo...", "audio": "audio/CC08.mp3", "icon": "img/CC08.png" },
+  { "id": "CC08", "description": "Posterior, abierto, largo…", "audio": "audio/CC08.mp3", "icon": "img/CC08.png" },
   { "id": "CC09", "description": "", "audio": "audio/CC09.mp3", "icon": "img/CC09.png" },
   { "id": "CC10", "description": "", "audio": "audio/CC10.mp3", "icon": "img/CC10.png" },
   { "id": "CC11", "description": "", "audio": "audio/CC11.mp3", "icon": "img/CC11.png" },
