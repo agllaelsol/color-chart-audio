@@ -1,171 +1,170 @@
-// ===============================
-// Color Chart – app.js (FINAL)
-// ===============================
+(() => {
+  const DATA_URL = "data/colorchart.json";
 
-// Elementos
-const menuEl = document.getElementById("soundMenu");
-const statusEl = document.getElementById("status");
+  const $ = (id) => document.getElementById(id);
 
-const avatarEl = document.getElementById("avatar");
-const idTextEl = document.getElementById("idText");
-const typeTextEl = document.getElementById("typeText");
-const ipaBigEl = document.getElementById("ipaBig");
-const exampleBigEl = document.getElementById("exampleBig");
-const descTextEl = document.getElementById("descText");
+  // IDs que debe tener tu HTML:
+  // soundSelect, searchInput, statusText
+  // iconImg, idText, typeText, ipaText, exampleText, descText
+  // playBtn
+  const els = {
+    select: $("soundSelect"),
+    search: $("searchInput"),
+    status: $("statusText"),
 
-const playBtn = document.getElementById("playBtn");
+    icon: $("iconImg"),
+    idText: $("idText"),
+    typeText: $("typeText"),
+    ipa: $("ipaText"),
+    example: $("exampleText"),
+    desc: $("descText"),
 
-// Variables
-let data = [];
-let currentItem = null;
-let audioPlayer = null;
+    playBtn: $("playBtn"),
+  };
 
-function setStatus(msg) {
-  if (statusEl) statusEl.textContent = msg || "";
-}
+  let sounds = [];
+  let current = null;
+  const audio = new Audio();
+  audio.preload = "auto";
 
-function stopAudio() {
-  if (audioPlayer) {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
-    audioPlayer = null;
+  function setStatus(msg) {
+    if (els.status) els.status.textContent = msg || "";
   }
-  if (playBtn) playBtn.classList.remove("isPlaying");
-}
 
-function render(item) {
-  currentItem = item;
+  function fillSelect(list) {
+    els.select.innerHTML = "";
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "Selecciona un sonido…";
+    els.select.appendChild(opt0);
 
-  if (idTextEl) idTextEl.textContent = item.id || "";
-  if (typeTextEl) typeTextEl.textContent = item.type || "";
+    list.forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = `${s.id} — ${s.ipa || ""} — ${s.example || ""}`.trim();
+      els.select.appendChild(opt);
+    });
+  }
 
-  if (ipaBigEl) ipaBigEl.textContent = item.ipa || "";
-  if (exampleBigEl) exampleBigEl.textContent = item.example || "";
-  if (descTextEl) descTextEl.textContent = item.description || "";
+  function renderSound(s) {
+    current = s;
 
-  // Icono (opcional)
-  if (avatarEl) {
-    if (item.icon && String(item.icon).trim() !== "") {
-      avatarEl.style.backgroundImage = `url('${item.icon}')`;
+    els.idText.textContent = s.id || "--";
+    els.typeText.textContent = s.type || "--";
+    els.ipa.textContent = s.ipa || "--";
+    els.example.textContent = s.example || "--";
+    els.desc.textContent = s.description || "";
+
+    // Icono
+    if (s.icon) {
+      els.icon.src = s.icon;
+      els.icon.style.opacity = "1";
     } else {
-      avatarEl.style.backgroundImage = "none";
+      els.icon.removeAttribute("src");
+      els.icon.style.opacity = "0.25";
+    }
+
+    // Audio (no reproduce solo: solo prepara)
+    if (s.audio) {
+      audio.src = s.audio;
+      setStatus("Listo.");
+    } else {
+      audio.removeAttribute("src");
+      setStatus("Este sonido no tiene audio asignado.");
     }
   }
 
-  // sincroniza el menú
-  if (menuEl && item.id) menuEl.value = item.id;
+  async function togglePlay() {
+    if (!current || !current.audio) return;
 
-  // cambiar de sonido = detener
-  stopAudio();
-}
-
-function fillMenu(list) {
-  if (!menuEl) return;
-  menuEl.innerHTML = "";
-
-  list.forEach(item => {
-    const opt = document.createElement("option");
-    opt.value = item.id;
-    opt.textContent = `${item.id} — ${item.ipa || ""} — ${item.example || ""}`.trim();
-    menuEl.appendChild(opt);
-  });
-}
-
-async function fetchJsonSmart() {
-  // ✅ Primer intento: el nombre que estás usando ahora
-  const candidates = [
-    "./data/colorchart.json",
-    "./data/colorchart.json"
-  ];
-
-  let lastErr = null;
-
-  for (const url of candidates) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status} en ${url}`);
-      const json = await res.json();
-      return { json, url };
-    } catch (e) {
-      lastErr = e;
+      if (audio.paused) {
+        await audio.play();
+        setStatus("Reproduciendo…");
+      } else {
+        audio.pause();
+        setStatus("Detenido.");
+      }
+    } catch (err) {
+      // Si falla, casi siempre es ruta incorrecta o archivo faltante
+      console.error(err);
+      alert(
+        "No se pudo reproducir el audio.\n\n" +
+        "1) Revisa que exista el archivo exacto en /audio (ej. CC08.mp3)\n" +
+        "2) Revisa que en el JSON diga: audio/CC08.mp3\n" +
+        "3) Respeta MAYÚSCULAS/minúsculas."
+      );
+      setStatus("Error al reproducir.");
     }
   }
 
-  throw lastErr || new Error("No se pudo cargar el JSON");
-}
-
-async function init() {
-  try {
-    setStatus("Cargando JSON…");
-
-    const { json, url } = await fetchJsonSmart();
-
-    if (!Array.isArray(json) || json.length === 0) {
-      throw new Error("El JSON está vacío o no es un arreglo");
+  function applyFilter() {
+    const q = (els.search.value || "").toLowerCase().trim();
+    if (!q) {
+      fillSelect(sounds);
+      return;
     }
-
-    data = json;
-
-    fillMenu(data);
-    render(data[0]);
-
-    setStatus(`JSON OK ✅ (${data.length} sonidos) — ${url}`);
-  } catch (e) {
-    console.error(e);
-    setStatus("Error cargando JSON ❌ (revisa nombre/ruta en /data)");
-    alert(
-      "No se pudo cargar el JSON.\n\n" +
-      "1) Abre con Live Preview o GitHub Pages.\n" +
-      "2) Verifica que exista: data/colorchart.json\n" +
-      "3) Que NO tenga espacios tipo: colorchart (1).json"
-    );
+    const filtered = sounds.filter((s) => {
+      return (
+        (s.id || "").toLowerCase().includes(q) ||
+        (s.ipa || "").toLowerCase().includes(q) ||
+        (s.example || "").toLowerCase().includes(q) ||
+        (s.type || "").toLowerCase().includes(q)
+      );
+    });
+    fillSelect(filtered);
   }
-}
 
-// Cambio de selección
-if (menuEl) {
-  menuEl.addEventListener("change", () => {
-    const item = data.find(x => x.id === menuEl.value);
-    if (item) render(item);
-  });
-}
+  function getById(id) {
+    return sounds.find((s) => s.id === id);
+  }
 
-// Play / Stop
-if (playBtn) {
-  playBtn.addEventListener("click", () => {
-    if (!currentItem) return;
-
-    // Toggle stop
-    if (audioPlayer) {
-      stopAudio();
-      setStatus("Detenido.");
+  async function init() {
+    if (!els.select || !els.playBtn) {
+      alert("Faltan IDs en el HTML. Revisa que existan soundSelect y playBtn.");
       return;
     }
 
-    const src = "./" + currentItem.audio; // ej: audio/CC08.mp3
-    audioPlayer = new Audio(src);
+    try {
+      const res = await fetch(DATA_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      sounds = await res.json();
 
-    audioPlayer.addEventListener("ended", () => {
-      stopAudio();
-      setStatus("Listo ✅");
+      if (!Array.isArray(sounds)) throw new Error("JSON no es un array");
+
+      fillSelect(sounds);
+      setStatus("Listo.");
+
+      // Auto-selección del primero (para demo)
+      if (sounds.length) {
+        els.select.value = sounds[0].id;
+        renderSound(sounds[0]);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("No se pudo cargar el JSON: " + DATA_URL);
+      setStatus("Error cargando JSON.");
+    }
+  }
+
+  // Eventos
+  if (els.select) {
+    els.select.addEventListener("change", () => {
+      const s = getById(els.select.value);
+      if (s) renderSound(s);
     });
+  }
 
-    audioPlayer.addEventListener("error", () => {
-      stopAudio();
-      setStatus(`No encontró el audio: ${currentItem.audio} ❌`);
-      alert(`No encontró el audio:\n${currentItem.audio}\n\nRevisa que exista y el nombre sea EXACTO.`);
-    });
+  if (els.search) {
+    els.search.addEventListener("input", applyFilter);
+  }
 
-    audioPlayer.play()
-      .then(() => {
-        playBtn.classList.add("isPlaying");
-        setStatus(`Reproduciendo ${currentItem.id}…`);
-      })
-      .catch(() => {
-        stopAudio();
-        setStatus("El navegador bloqueó el audio ❌ (da click otra vez)");
-      });
-  });
-}
+  if (els.playBtn) {
+    els.playBtn.addEventListener("click", togglePlay);
+  }
 
-init();
+  audio.addEventListener("ended", () => setStatus("Detenido."));
+
+  // Inicia
+  init();
+})();
