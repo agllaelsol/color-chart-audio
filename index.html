@@ -8,42 +8,45 @@
 </head>
 
 <body>
-  <main class="wrap">
-    <h1 class="title">Color Chart</h1>
-    <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
+  <main class="page">
+    <header class="header">
+      <h1>Color Chart</h1>
+      <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
 
-    <div class="controls">
-      <label class="label" for="soundSelect">Menú de sonidos</label>
-      <select id="soundSelect" class="select">
-        <option value="">Cargando...</option>
-      </select>
-      <span id="statusText" class="status">—</span>
-    </div>
+      <div class="controls">
+        <label class="label" for="soundSelect">Menú de sonidos</label>
+        <select id="soundSelect" class="select">
+          <option value="">Cargando...</option>
+        </select>
+        <span id="status" class="status">—</span>
+      </div>
+    </header>
 
-    <section class="panel">
+    <section class="grid">
       <div class="col">
-        <div class="colTitle">Icono</div>
+        <div class="pillHeader">Icono</div>
         <div class="iconWrap">
-          <img id="iconImg" alt="Icono" class="iconImg" />
+          <img id="iconImg" alt="Icono" />
         </div>
       </div>
 
-      <div class="col">
-        <div class="colTitle">Descripción</div>
+      <div class="col descCol">
+        <div class="pillHeader">Descripción</div>
         <div class="card">
-          <div class="pillRow">
-            <span id="idPill" class="pill">—</span>
+          <div class="meta">
+            <span id="idText" class="pill">—</span>
           </div>
           <p id="descText" class="desc">Selecciona un sonido.</p>
         </div>
       </div>
 
       <div class="col">
-        <div class="colTitle">Sonido</div>
-        <button id="playBtn" class="playBtn" type="button" aria-label="Reproducir">
-          ▶
+        <div class="pillHeader">Sonido</div>
+        <button id="playBtn" class="playBtn" type="button" aria-label="Reproducir / detener">
+          <img src="img/speaker.png" alt="" />
         </button>
         <p class="hint">Click para reproducir / click otra vez para detener</p>
+        <audio id="audioEl" preload="none"></audio>
       </div>
     </section>
   </main>
