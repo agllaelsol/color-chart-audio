@@ -4,59 +4,70 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Color Chart</title>
+
+  <!-- IMPORTANTÍSIMO: ruta relativa -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
-  <main class="wrap">
+  <div class="wrap">
     <header class="top">
       <h1>Color Chart</h1>
-      <p class="subtitle">Catálogo interactivo — 58 sonidos</p>
+      <p class="sub">Catálogo interactivo — 58 sonidos</p>
 
-      <div class="toolbar">
-        <label class="label" for="soundSelect">Menú de sonidos</label>
+      <div class="controls">
+        <label for="soundSelect" class="label">Menú de sonidos</label>
         <select id="soundSelect" class="select">
-          <option value="" selected disabled>Cargando...</option>
+          <option value="">Cargando...</option>
         </select>
-        <span id="statusText" class="status">—</span>
+        <span id="statusText" class="status"></span>
       </div>
     </header>
 
-    <section class="grid3">
-      <!-- Columna 1: Icono -->
-      <div class="col">
-        <div class="pillTitle">Icono</div>
-        <div class="iconCard">
-          <img id="iconImg" alt="Ícono" />
+    <main class="grid3">
+      <!-- Col 1 -->
+      <section class="col">
+        <div class="pillHeader">Icono</div>
+        <div class="iconWrap">
+          <img id="iconImg" class="iconImg" alt="Icono" />
         </div>
-      </div>
+      </section>
 
-      <!-- Columna 2: Descripción -->
-      <div class="col">
-        <div class="pillTitle">Descripción</div>
-        <div class="descCard">
+      <!-- Col 2 -->
+      <section class="col">
+        <div class="pillHeader">Descripción</div>
+
+        <div class="card">
           <div class="meta">
+            <!-- Esto es lo que preguntabas: son “píldoras” informativas -->
             <span id="idText" class="pill">—</span>
+            <!-- Si NO quieres “type”, lo dejamos oculto desde JS/CSS -->
+            <span id="typeText" class="pill pillSoft" style="display:none;"></span>
           </div>
-          <p id="descText" class="descText">Selecciona un sonido.</p>
+
+          <div id="descText" class="desc">
+            Selecciona un sonido.
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Columna 3: Sonido -->
-      <div class="col">
-        <div class="pillTitle">Sonido</div>
+      <!-- Col 3 -->
+      <section class="col">
+        <div class="pillHeader">Sonido</div>
 
-        <button id="playBtn" class="soundBtn" type="button" aria-label="Reproducir / detener">
-          <img id="speakerIcon" src="img/speaker.png" alt="" />
+        <button id="playBtn" class="soundBtn" type="button" aria-label="Reproducir">
+          🔊
         </button>
 
-        <p class="hint">Click para reproducir / click otra vez para detener</p>
+        <div class="hint">Click para reproducir / click otra vez para detener</div>
 
-        <!-- Audio real -->
-        <audio id="audioEl" preload="none"></audio>
-      </div>
-    </section>
-  </main>
+        <!-- Audio real (controlado por JS) -->
+        <audio id="audioEl" preload="auto"></audio>
+      </section>
+    </main>
+  </div>
 
-  <script src="js/app.js"></script>
+  <!-- IMPORTANTÍSIMO: ruta relativa + defer -->
+  <script src="js/app.js" defer></script>
 </body>
 </html>
